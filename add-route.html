@@ -4,12 +4,139 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Route</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    :root {
+      --dark-bg: #230903;
+      --mid-bg: #656256;
+      --accent-green: #9ebc9f;
+      --accent-tan: #d3b88c;
+      --light-bg: #f4f2f3;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      display: flex;
+      min-height: 100vh;
+      background: var(--light-bg);
+      color: var(--dark-bg);
+    }
+
+    .sidebar {
+      width: 240px;
+      background: var(--dark-bg);
+      color: #fff;
+      padding: 2rem 1rem;
+    }
+
+    .sidebar a {
+      display: block;
+      background: var(--accent-green);
+      color: var(--dark-bg);
+      text-align: center;
+      padding: 0.8rem;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar a:hover {
+      background: var(--accent-tan);
+      transform: translateY(-2px);
+    }
+
+    .main {
+      flex: 1;
+      padding: 2rem;
+    }
+
+    .card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-width: 700px;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--mid-bg);
+    }
+
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: var(--light-bg);
+    }
+
+    #result {
+      margin-top: 1rem;
+      background: var(--accent-tan);
+      color: var(--dark-bg);
+      font-weight: 500;
+      border-radius: 6px;
+      padding: 0.8rem;
+      display: none;
+    }
+
+    .stop {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stop input {
+      flex: 1;
+    }
+
+    .stop button {
+      background: crimson;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 0.4rem 0.7rem;
+      cursor: pointer;
+    }
+
+    button.compute {
+      background: var(--accent-green);
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--dark-bg);
+    }
+
+    button.compute:hover {
+      background: var(--accent-tan);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="sidebar">
     <h2>Admin Menu</h2>
-    <a href="admin.html" class="menu-btn">⬅ Back to Dashboard</a>
+    <a href="admin.html">⬅ Back to Dashboard</a>
   </div>
 
   <div class="main">
@@ -17,22 +144,31 @@
       <h2>Multi-Stop Route Planner</h2>
 
       <label>Origin:</label>
-      <input type="text" id="origin" placeholder="Enter starting location">
+      <input type="text" id="origin" placeholder="Enter starting location" />
 
       <div id="stops"></div>
 
       <button onclick="addStop()">➕ Add Stop</button>
 
       <label>Destination:</label>
-      <input type="text" id="destination" placeholder="Enter final destination">
+      <input type="text" id="destination" placeholder="Enter final destination" />
 
-      <button onclick="computeRoute()">Compute Fee</button>
+      <button class="compute" onclick="computeRoute()">Compute Total Fee</button>
 
       <div id="result"></div>
     </div>
   </div>
 
   <script>
+    let autocompleteFields = [];
+
+    function initAutocomplete() {
+      const originInput = document.getElementById("origin");
+      const destinationInput = document.getElementById("destination");
+      new google.maps.places.Autocomplete(originInput);
+      new google.maps.places.Autocomplete(destinationInput);
+    }
+
     function addStop() {
       const div = document.createElement("div");
       div.className = "stop";
@@ -41,6 +177,10 @@
         <button onclick="this.parentElement.remove()">✖</button>
       `;
       document.getElementById("stops").appendChild(div);
+
+      const newInput = div.querySelector(".waypoint");
+      const autocomplete = new google.maps.places.Autocomplete(newInput);
+      autocompleteFields.push(autocomplete);
     }
 
     function computeRoute() {
@@ -52,6 +192,7 @@
 
       const result = document.getElementById("result");
       if (!origin || !destination) {
+        result.style.display = "block";
         result.innerHTML = "⚠️ Please input origin and destination.";
         return;
       }
@@ -66,6 +207,7 @@
         },
         (res, status) => {
           if (status !== "OK") {
+            result.style.display = "block";
             result.innerHTML = "❌ Error calculating route.";
             return;
           }
@@ -76,16 +218,16 @@
           const km = total / 1000;
           const fee = 25 + km * 10;
 
+          result.style.display = "block";
           result.innerHTML = `
             <p><strong>Total Distance:</strong> ${km.toFixed(2)} km</p>
-            <p><strong>Delivery Fee:</strong> ₱${fee.toFixed(2)}</p>
+            <p><strong>Estimated Delivery Fee:</strong> ₱${fee.toFixed(2)}</p>
           `;
         }
       );
     }
   </script>
 
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCwm00tCv8XGJFxq5EbZut2CRKjMaXIJLg&libraries=places"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCwm00tCv8XGJFxq5EbZut2CRKjMaXIJLg&libraries=places&callback=initAutocomplete"></script>
 </body>
 </html>
-
