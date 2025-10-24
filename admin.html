@@ -21,206 +21,136 @@
     }
 
     body {
-      display: flex;
-      min-height: 100vh;
-      background-color: var(--light-bg);
-      color: var(--dark-bg);
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 250px;
-      background: var(--dark-bg);
-      color: var(--light-bg);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: 0.3s ease;
-    }
-
-    .sidebar h2 {
-      text-align: center;
-      padding: 1.5rem 0;
-      background: var(--mid-bg);
-      font-size: 1.2rem;
-      letter-spacing: 1px;
-    }
-
-    .sidebar ul {
-      list-style: none;
-    }
-
-    .sidebar ul li {
-      padding: 1rem 1.5rem;
-      border-left: 5px solid transparent;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .sidebar ul li:hover {
-      background: var(--accent-tan);
-      color: var(--dark-bg);
-      border-left: 5px solid var(--accent-green);
-    }
-
-    .logout {
-      background: var(--mid-bg);
-      text-align: center;
-      padding: 1rem;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .logout:hover {
-      background: var(--accent-tan);
-      color: var(--dark-bg);
-    }
-
-    /* Main Content */
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Topbar */
-    .topbar {
-      background: var(--accent-green);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .topbar h1 {
-      font-size: 1.5rem;
-      color: var(--dark-bg);
-    }
-
-    .admin-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 500;
-    }
-
-    .admin-info img {
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
       background: var(--light-bg);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
 
-    /* Dashboard Panels */
-    .dashboard {
-      padding: 2rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
+    h1 {
+      color: var(--dark-bg);
+      margin-bottom: 1.5rem;
     }
 
     .card {
-      background: white;
-      border-radius: 1rem;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      transition: 0.3s;
-      cursor: pointer;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .card h3 {
-      color: var(--dark-bg);
-      margin-bottom: 1rem;
-    }
-
-    .card p {
+    label {
       color: var(--mid-bg);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.5rem;
     }
 
-    @media (max-width: 768px) {
-      .sidebar {
-        width: 70px;
-      }
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 1rem;
+      background: var(--light-bg);
+    }
 
-      .sidebar h2 {
-        display: none;
-      }
+    button {
+      width: 100%;
+      background: var(--accent-green);
+      color: var(--dark-bg);
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
 
-      .sidebar ul li {
-        text-align: center;
-        font-size: 0.8rem;
-        padding: 0.8rem;
-      }
+    button:hover {
+      background: var(--accent-tan);
+      transform: translateY(-2px);
+    }
 
-      .logout {
-        font-size: 0.8rem;
-      }
-
-      .topbar h1 {
-        font-size: 1.2rem;
-      }
+    #result {
+      margin-top: 1.2rem;
+      background: var(--accent-tan);
+      color: var(--dark-bg);
+      font-weight: 500;
+      border-radius: 8px;
+      padding: 0.9rem;
+      text-align: center;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <div>
-      <h2>Admin Panel</h2>
-      <ul>
-        <li>🏠 Dashboard</li>
-        <li>👷 Riders</li>
-        <li>🚚 Deliveries</li>
-        <li>📊 Reports</li>
-        <li>⚙️ Settings</li>
-      </ul>
-    </div>
-    <div class="logout" onclick="logout()">🚪 Log Out</div>
-  </div>
+  <h1>Admin Dashboard</h1>
+  <div class="card">
+    <h2 style="color: var(--mid-bg); margin-bottom: 1rem;">Add Route</h2>
 
-  <div class="main-content">
-    <div class="topbar">
-      <h1>Welcome, Admin</h1>
-      <div class="admin-info">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin" />
-        <span>Admin User</span>
-      </div>
-    </div>
+    <label for="origin">Origin:</label>
+    <input type="text" id="origin" placeholder="Enter origin address" required />
 
-    <div class="dashboard">
-      <div class="card" onclick="alert('Add Route clicked')">
-        <h3>🗺️ Add Route</h3>
-        <p>Create or modify delivery routes.</p>
-      </div>
+    <label for="destination">Destination:</label>
+    <input type="text" id="destination" placeholder="Enter destination address" required />
 
-      <div class="card" onclick="alert('Assign Rider clicked')">
-        <h3>👷 Assign Rider</h3>
-        <p>Assign riders to scheduled deliveries.</p>
-      </div>
+    <button onclick="computeDistance()">Compute Fee</button>
 
-      <div class="card" onclick="alert('Track Deliveries clicked')">
-        <h3>🚚 Track Deliveries</h3>
-        <p>Monitor real-time delivery progress.</p>
-      </div>
-
-      <div class="card" onclick="alert('Reports clicked')">
-        <h3>📊 Reports</h3>
-        <p>View performance analytics and cost reports.</p>
-      </div>
-    </div>
+    <div id="result"></div>
   </div>
 
   <script>
-    function logout() {
-      if (confirm("Are you sure you want to log out?")) {
-        window.location.href = "index.html";
+    function computeDistance() {
+      const origin = document.getElementById("origin").value;
+      const destination = document.getElementById("destination").value;
+      const resultDiv = document.getElementById("result");
+
+      if (!origin || !destination) {
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = "⚠️ Please enter both origin and destination.";
+        return;
       }
+
+      const service = new google.maps.DistanceMatrixService();
+      service.getDistanceMatrix(
+        {
+          origins: [origin],
+          destinations: [destination],
+          travelMode: "DRIVING",
+        },
+        (response, status) => {
+          if (status !== "OK") {
+            resultDiv.style.display = "block";
+            resultDiv.innerHTML = "❌ Error calculating distance.";
+            return;
+          }
+
+          const distance = response.rows[0].elements[0].distance.value / 1000; // meters → km
+          const distanceText = response.rows[0].elements[0].distance.text;
+
+          // 💰 Fee formula
+          const baseFee = 25;
+          const perKm = 10;
+          const fee = baseFee + distance * perKm;
+
+          resultDiv.style.display = "block";
+          resultDiv.innerHTML = `
+            <strong>Distance:</strong> ${distanceText}<br>
+            <strong>Computed Fee:</strong> ₱${fee.toFixed(2)}
+          `;
+        }
+      );
     }
+  </script>
+
+  <!-- Load Google Maps API for Distance Matrix -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUjaNIwxaveRkGFKhCcLIZClvNtiCwWyk">
   </script>
 </body>
 </html>
