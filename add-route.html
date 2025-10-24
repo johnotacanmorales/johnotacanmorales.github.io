@@ -37,7 +37,8 @@
       transition: 0.3s;
     }
 
-    button:hover { background: #3730a3; }
+    button:hover:not(:disabled) { background: #3730a3; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .distance-result {
       margin-top: 20px;
@@ -53,85 +54,108 @@
       margin-top: 10px;
       font-weight: 500;
     }
+
+    .loading {
+      text-align: center;
+      margin-top: 15px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Add Delivery Route</h2>
 
+    <label for="origin">Origin</label>
     <input type="text" id="origin" placeholder="Enter origin" />
+
+    <label for="destination">Destination</label>
     <input type="text" id="destination" placeholder="Enter destination" />
 
     <div id="waypoints"></div>
     <span class="add-stop" onclick="addStop()">+ Add Stop</span>
 
-    <button onclick="calculateDistance()">Compute Fee</button>
+    <button id="computeBtn" onclick="calculateDistance()">Compute Fee</button>
 
+    <div id="loading" class="loading"></div>
     <div class="distance-result" id="result"></div>
   </div>
 
   <script>
-    const GOOGLE_MAPS_API_KEY = "AIzaSyABBbwu3ehg4IXQYqOtz-txvNG4KYkj3ss"; // your key
+    // ⚠️ IMPORTANT: Replace with your restricted API key (domain-locked, not exposed in production)
+    const GOOGLE_MAPS_API_KEY = "AIzaSyArXIA6s9EokKGX50dUX2Zjh7UyykTEDDw";
 
-    // Initialize Autocomplete for fields
+    // Initialize Autocomplete
     function initAutocomplete() {
-      const options = { componentRestrictions: { country: "ph" } }; // Restrict to PH (optional)
+      const options = { componentRestrictions: { country: "ph" } };
       new google.maps.places.Autocomplete(document.getElementById("origin"), options);
       new google.maps.places.Autocomplete(document.getElementById("destination"), options);
     }
 
-    // Add new stop input
+    // Add stop field dynamically
     function addStop() {
       const div = document.createElement('div');
       div.innerHTML = `<input type="text" class="stop" placeholder="Stop" />`;
       document.getElementById('waypoints').appendChild(div);
-
-      // Enable autocomplete on new stop field
-      const inputs = div.querySelectorAll(".stop");
-      inputs.forEach(input => new google.maps.places.Autocomplete(input, { componentRestrictions: { country: "ph" } }));
+      const input = div.querySelector(".stop");
+      new google.maps.places.Autocomplete(input, { componentRestrictions: { country: "ph" } });
     }
 
-    // Calculate total distance and delivery fee
+    // Calculate total distance using Directions API
     function calculateDistance() {
-      const origin = document.getElementById('origin').value;
-      const destination = document.getElementById('destination').value;
-      const stops = Array.from(document.querySelectorAll('.stop')).map(i => i.value);
+      const origin = document.getElementById('origin').value.trim();
+      const destination = document.getElementById('destination').value.trim();
+      const stops = Array.from(document.querySelectorAll('.stop'))
+                         .map(i => i.value.trim())
+                         .filter(v => v !== '');
 
       if (!origin || !destination) {
-        alert("Please enter both origin and destination");
+        alert("Please enter both origin and destination.");
         return;
       }
 
-      const service = new google.maps.DistanceMatrixService();
-      const points = [origin, ...stops, destination];
-      const requests = [];
+      const computeBtn = document.getElementById("computeBtn");
+      const resultDiv = document.getElementById("result");
+      const loadingDiv = document.getElementById("loading");
 
-      for (let i = 0; i < points.length - 1; i++) {
-        requests.push(
-          new Promise((resolve, reject) => {
-            service.getDistanceMatrix({
-              origins: [points[i]],
-              destinations: [points[i+1]],
-              travelMode: google.maps.TravelMode.DRIVING,
-            }, (res, status) => {
-              if (status === 'OK') {
-                const km = res.rows[0].elements[0].distance.value / 1000;
-                resolve(km);
-              } else reject(status);
-            });
-          })
-        );
-      }
+      computeBtn.disabled = true;
+      resultDiv.innerHTML = "";
+      loadingDiv.innerHTML = "🚗 Calculating route...";
 
-      Promise.all(requests).then(distances => {
-        const totalKm = distances.reduce((a,b) => a+b, 0);
-        const fee = totalKm * 10; // ₱10/km rate
-        document.getElementById('result').innerHTML =
-          `🚚 Total Distance: ${totalKm.toFixed(2)} km<br>💰 Fee: ₱${fee.toFixed(2)}`;
-      }).catch(err => alert("Error: " + err));
+      const directionsService = new google.maps.DirectionsService();
+      directionsService.route({
+        origin,
+        destination,
+        waypoints: stops.map(stop => ({ location: stop, stopover: true })),
+        travelMode: google.maps.TravelMode.DRIVING,
+        optimizeWaypoints: false
+      }, (response, status) => {
+        computeBtn.disabled = false;
+        loadingDiv.innerHTML = "";
+
+        if (status !== "OK" || !response.routes[0]) {
+          alert("Unable to calculate route. Please check the addresses and try again.");
+          return;
+        }
+
+        const route = response.routes[0];
+        let totalMeters = 0;
+
+        route.legs.forEach(leg => {
+          totalMeters += leg.distance.value;
+        });
+
+        const totalKm = totalMeters / 1000;
+        const fee = totalKm * 10; // ₱10 per km
+
+        resultDiv.innerHTML = `
+          🚚 Total Distance: <strong>${totalKm.toFixed(2)} km</strong><br>
+          💰 Fee: <strong>₱${fee.toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
+        `;
+      });
     }
 
-    // Load Google Maps JS + initialize autocomplete
+    // Load Google Maps script dynamically
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&callback=initAutocomplete`;
     script.async = true;
