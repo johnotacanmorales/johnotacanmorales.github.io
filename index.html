@@ -17,22 +17,23 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background: linear-gradient(135deg, #ff8c00, #ff5500);
+      background: linear-gradient(135deg, #230903, #656256);
     }
 
     .login-container {
-      background: #fff;
+      background: #f4f2f3;
       width: 90%;
       max-width: 400px;
       padding: 2rem;
       border-radius: 1rem;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
       text-align: center;
     }
 
     .login-container h1 {
       margin-bottom: 1.5rem;
-      color: #333;
+      color: #230903;
+      letter-spacing: 0.5px;
     }
 
     .input-group {
@@ -44,14 +45,17 @@
       display: block;
       font-weight: 500;
       margin-bottom: 0.3rem;
+      color: #656256;
     }
 
     .input-group input {
       width: 100%;
       padding: 0.75rem;
-      border: 1px solid #ccc;
+      border: 1px solid #d3b88c;
       border-radius: 0.5rem;
       font-size: 1rem;
+      background-color: #fff;
+      color: #230903;
     }
 
     .role-select {
@@ -67,34 +71,33 @@
       border: none;
       border-radius: 0.5rem;
       cursor: pointer;
-      color: white;
-      background: #ff6600;
+      color: #230903;
       transition: 0.3s ease;
     }
 
-    .role-select button:hover {
-      background: #e65500;
-    }
-
-    /* Rider button on the right side */
     #adminBtn {
       order: 1;
+      background: #9ebc9f;
+    }
+
+    #adminBtn:hover {
+      background: #8aad8e;
     }
 
     #riderBtn {
       order: 2;
-      background: #333;
+      background: #d3b88c;
     }
 
     #riderBtn:hover {
-      background: #000;
+      background: #c3a87c;
     }
 
     .login-btn {
       width: 100%;
       padding: 0.8rem;
-      background: #222;
-      color: #fff;
+      background: #230903;
+      color: #f4f2f3;
       border: none;
       border-radius: 0.5rem;
       font-size: 1rem;
@@ -104,7 +107,7 @@
     }
 
     .login-btn:hover {
-      background: #000;
+      background: #3c1a10;
     }
 
     @media (max-width: 480px) {
@@ -166,7 +169,6 @@
         return;
       }
 
-      // Redirect based on role
       if (userRole === "Admin") {
         window.location.href = "admin.html";
       } else {
