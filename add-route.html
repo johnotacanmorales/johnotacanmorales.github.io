@@ -11,10 +11,15 @@
 
   <style>
     :root{
-      --bg:#f3f4f6; --card:#fff; --ink:#111827; --muted:#6b7280;
-      --brand:#4F46E5; --brand-700:#3730a3; --accent:#F97316;
-      --ring:rgba(79,70,229,.35); --rail:#e5e7eb; --ok:#16a34a; --danger:#ef4444;
-      --shadow:0 2px 8px rgba(0,0,0,.1); --radius:12px;
+      /* Blue theme */
+      --bg:#f3f4f6; --card:#fff; --ink:#0f172a; --muted:#64748b;
+      --brand:#2563eb;           /* Blue 600 */
+      --brand-700:#1d4ed8;       /* Blue 700 */
+      --accent:#0ea5e9;          /* Sky 500 (used subtly) */
+      --ring:rgba(37,99,235,.30);/* focus ring with brand tint */
+      --rail:#e2e8f0;            /* slate-200 */
+      --ok:#16a34a; --danger:#ef4444;
+      --shadow:0 2px 8px rgba(2,6,23,.08); --radius:12px;
     }
     *{box-sizing:border-box}
     body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--ink);padding:20px}
@@ -30,7 +35,7 @@
     .small{font-size:12px;color:var(--muted);margin-top:6px}
 
     /* Stack / rail UI */
-    .stack{border:1px solid #e5e7eb;border-radius:14px;padding:12px 12px 8px 12px}
+    .stack{border:1px solid #e2e8f0;border-radius:14px;padding:12px 12px 8px 12px}
     .stack-rail{position:relative;padding-left:32px}
     .stack-rail::before{
       content:""; position:absolute; left:14px; top:20px; bottom:18px; width:2px; background:var(--rail); border-radius:2px;
@@ -39,22 +44,23 @@
       position:relative; display:flex; gap:10px; align-items:flex-start;
       padding:10px 6px; border-radius:10px;
     }
-    .stop-row + .stop-row{ border-top:1px solid #f1f2f4; }
+    .stop-row + .stop-row{ border-top:1px solid #edf2f7; }
     .idx{
       user-select:none; cursor:grab; flex:0 0 auto; width:28px; height:28px; border-radius:999px;
-      background:#f1f5f9; color:#111827; font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:center;
-      border:1px solid #e5e7eb; margin-top:2px;
+      background:#eff6ff; color:#1e3a8a; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center;
+      border:1px solid #bfdbfe; margin-top:2px;
     }
     .idx:active{cursor:grabbing}
     .stop-main{flex:1 1 auto}
     .addr{width:100%}
     .meta{display:flex; align-items:center; gap:10px; margin-top:6px;}
-    .dot{width:8px;height:8px;border-radius:999px;background:#9ca3af;flex:0 0 auto;margin-top:2px}
+    .dot{width:8px;height:8px;border-radius:999px;background:#94a3b8;flex:0 0 auto;margin-top:2px}
     .dot.ok{background:var(--ok)}
-    .note-input{flex:1 1 auto; font-size:14px; padding:8px 10px; border:1px dashed #d7dae0; border-radius:8px}
-    .note-input:focus{border-style:solid}
+    .note-input{flex:1 1 auto; font-size:14px; padding:8px 10px; border:1px dashed #cbd5e1; border-radius:8px}
+    .note-input:focus{border-style:solid;border-color:#93c5fd;box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+
     .remove-stop{
-      flex:0 0 auto; cursor:pointer; border:none; background:transparent; color:#6b7280; font-size:16px;
+      flex:0 0 auto; cursor:pointer; border:none; background:transparent; color:#64748b; font-size:16px;
       width:28px; height:28px; border-radius:8px;
     }
     .remove-stop:hover{ color:var(--danger); background:#fff1f1; }
@@ -62,28 +68,30 @@
     .row-actions{display:flex; align-items:center; justify-content:space-between; padding:8px 2px 4px;}
     .row-actions .toggles{display:flex; align-items:center; gap:16px}
 
-    .add-stop{color:var(--accent); cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-weight:600;}
+    .add-stop{
+      color:var(--brand); cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-weight:700;
+    }
 
     /* Toggle switches */
-    .toggle{display:inline-flex; align-items:center; gap:10px; user-select:none; cursor:pointer; font-weight:600; color:#374151;}
-    .switch{position:relative; width:54px; height:28px; background:#f1f5f9; border-radius:999px; transition:.2s; border:1px solid #e5e7eb;}
+    .toggle{display:inline-flex; align-items:center; gap:10px; user-select:none; cursor:pointer; font-weight:700; color:#0f172a;}
+    .switch{position:relative; width:54px; height:28px; background:#f1f5f9; border-radius:999px; transition:.2s; border:1px solid #e2e8f0;}
     .switch::after{content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; background:#fff; border-radius:999px;
-      box-shadow:0 1px 3px rgba(0,0,0,.2); transition:.2s;}
-    .switch.on{background:var(--accent); border-color:var(--accent)}
+      box-shadow:0 1px 3px rgba(2,6,23,.25); transition:.2s;}
+    .switch.on{background:var(--brand); border-color:var(--brand)}
     .switch.on::after{left:29px}
 
     .hr{height:1px;background:#e5e7eb;margin:16px 0}
 
-    button.btn{width:100%; padding:12px; border:0; border-radius:10px; background:var(--brand); color:#fff; font-weight:600; font-size:16px; cursor:pointer; transition:.2s;}
+    button.btn{width:100%; padding:12px; border:0; border-radius:10px; background:var(--brand); color:#fff; font-weight:700; font-size:16px; cursor:pointer; transition:.2s;}
     button.btn:hover{background:var(--brand-700)}
     button.btn:disabled{opacity:.6; cursor:not-allowed}
 
     #map{height:420px;width:100%;margin-top:16px;border-radius:10px;box-shadow:var(--shadow)}
     .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
-    .chip{background:#eef2ff;color:#3730a3;border-radius:999px;padding:6px 10px;font-size:12px}
-    .distance-result{margin-top:14px;text-align:center;font-weight:600}
-    .loading{text-align:center;margin-top:10px;color:#555}
-    .muted{color:#6b7280}
+    .chip{background:#dbeafe;color:#1e3a8a;border:1px solid #bfdbfe;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600}
+    .distance-result{margin-top:14px;text-align:center;font-weight:700}
+    .loading{text-align:center;margin-top:10px;color:#334155}
+    .muted{color:#64748b}
   </style>
 </head>
 <body>
@@ -97,7 +105,7 @@
 
     <div class="stack stack-rail" aria-label="Destinations block">
       <div class="stop-row" style="padding-bottom:4px;">
-        <div class="muted" style="font-weight:600">Destinations</div>
+        <div class="muted" style="font-weight:700">Destinations</div>
       </div>
 
       <div id="stops"></div>
