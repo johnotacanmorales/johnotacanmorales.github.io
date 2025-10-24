@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add Route</title>
+  <title>Add Delivery Route</title>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -60,6 +60,33 @@
       margin-top: 15px;
       color: #555;
     }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 500;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      accent-color: #4F46E5;
+      transform: scale(1.2);
+    }
+
+    #map {
+      height: 400px;
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
@@ -75,21 +102,40 @@
     <div id="waypoints"></div>
     <span class="add-stop" onclick="addStop()">+ Add Stop</span>
 
+    <!-- Route Optimization Checkbox -->
+    <label class="checkbox-label">
+      <input type="checkbox" id="optimize" />
+      <span>Optimize route for shortest distance</span>
+    </label>
+
     <button id="computeBtn" onclick="calculateDistance()">Compute Fee</button>
 
     <div id="loading" class="loading"></div>
     <div class="distance-result" id="result"></div>
+    <div id="map"></div>
   </div>
 
   <script>
-    // ⚠️ IMPORTANT: Replace with your restricted API key (domain-locked, not exposed in production)
+    // ⚠️ Replace this with your domain-restricted Google Maps API key
     const GOOGLE_MAPS_API_KEY = "AIzaSyArXIA6s9EokKGX50dUX2Zjh7UyykTEDDw";
 
-    // Initialize Autocomplete
+    let map, directionsService, directionsRenderer;
+
+    // Initialize Autocomplete + Map
     function initAutocomplete() {
       const options = { componentRestrictions: { country: "ph" } };
+
       new google.maps.places.Autocomplete(document.getElementById("origin"), options);
       new google.maps.places.Autocomplete(document.getElementById("destination"), options);
+
+      // Initialize map (default center: Metro Manila)
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 7,
+        center: { lat: 14.5995, lng: 120.9842 },
+      });
+
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer({ map });
     }
 
     // Add stop field dynamically
@@ -101,7 +147,7 @@
       new google.maps.places.Autocomplete(input, { componentRestrictions: { country: "ph" } });
     }
 
-    // Calculate total distance using Directions API
+    // Calculate route and display on map
     function calculateDistance() {
       const origin = document.getElementById('origin').value.trim();
       const destination = document.getElementById('destination').value.trim();
@@ -122,13 +168,14 @@
       resultDiv.innerHTML = "";
       loadingDiv.innerHTML = "🚗 Calculating route...";
 
-      const directionsService = new google.maps.DirectionsService();
+      const optimize = document.getElementById('optimize').checked;
+
       directionsService.route({
         origin,
         destination,
         waypoints: stops.map(stop => ({ location: stop, stopover: true })),
         travelMode: google.maps.TravelMode.DRIVING,
-        optimizeWaypoints: false
+        optimizeWaypoints: optimize
       }, (response, status) => {
         computeBtn.disabled = false;
         loadingDiv.innerHTML = "";
@@ -138,12 +185,12 @@
           return;
         }
 
+        // Display route on map
+        directionsRenderer.setDirections(response);
+
         const route = response.routes[0];
         let totalMeters = 0;
-
-        route.legs.forEach(leg => {
-          totalMeters += leg.distance.value;
-        });
+        route.legs.forEach(leg => totalMeters += leg.distance.value);
 
         const totalKm = totalMeters / 1000;
         const fee = totalKm * 10; // ₱10 per km
@@ -152,6 +199,16 @@
           🚚 Total Distance: <strong>${totalKm.toFixed(2)} km</strong><br>
           💰 Fee: <strong>₱${fee.toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
         `;
+
+        // Show optimized stop order if optimization is enabled
+        if (optimize && stops.length > 1) {
+          const order = response.routes[0].waypoint_order;
+          const optimizedStops = order.map(i => stops[i]);
+          resultDiv.innerHTML += `
+            <br><br>🗺 <strong>Optimized Stop Order:</strong><br>
+            ${optimizedStops.join(' → ')}
+          `;
+        }
       });
     }
 
