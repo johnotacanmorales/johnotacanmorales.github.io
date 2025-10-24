@@ -5,229 +5,137 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Route</title>
   <style>
-    :root {
-      --dark-bg: #230903;
-      --mid-bg: #656256;
-      --accent-green: #9ebc9f;
-      --accent-tan: #d3b88c;
-      --light-bg: #f4f2f3;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
-    }
-
     body {
-      display: flex;
-      min-height: 100vh;
-      background: var(--light-bg);
-      color: var(--dark-bg);
+      font-family: 'Poppins', sans-serif;
+      background-color: #f3f4f6;
+      padding: 20px;
     }
 
-    .sidebar {
-      width: 240px;
-      background: var(--dark-bg);
-      color: #fff;
-      padding: 2rem 1rem;
-    }
-
-    .sidebar a {
-      display: block;
-      background: var(--accent-green);
-      color: var(--dark-bg);
-      text-align: center;
-      padding: 0.8rem;
-      border-radius: 6px;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      text-decoration: none;
-      transition: all 0.2s ease;
-    }
-
-    .sidebar a:hover {
-      background: var(--accent-tan);
-      transform: translateY(-2px);
-    }
-
-    .main {
-      flex: 1;
-      padding: 2rem;
-    }
-
-    .card {
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
       background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      max-width: 700px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    label {
-      font-weight: 600;
-      color: var(--mid-bg);
-    }
-
-    input {
+    input, button {
       width: 100%;
-      padding: 0.8rem;
-      margin-bottom: 1rem;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ddd;
       border-radius: 8px;
-      border: 1px solid #ccc;
-      background: var(--light-bg);
+      font-size: 16px;
     }
 
-    #result {
-      margin-top: 1rem;
-      background: var(--accent-tan);
-      color: var(--dark-bg);
-      font-weight: 500;
-      border-radius: 6px;
-      padding: 0.8rem;
-      display: none;
-    }
-
-    .stop {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .stop input {
-      flex: 1;
-    }
-
-    .stop button {
-      background: crimson;
+    button {
+      background: #4F46E5;
       color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 0.4rem 0.7rem;
       cursor: pointer;
+      font-weight: 500;
+      transition: 0.3s;
     }
 
-    button.compute {
-      background: var(--accent-green);
-      border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
+    button:hover { background: #3730a3; }
+
+    .distance-result {
+      margin-top: 20px;
+      text-align: center;
       font-weight: 600;
-      color: var(--dark-bg);
     }
 
-    button.compute:hover {
-      background: var(--accent-tan);
-    }
-
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
-      .sidebar {
-        width: 100%;
-        text-align: center;
-      }
+    .add-stop {
+      color: #2563eb;
+      cursor: pointer;
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h2>Admin Menu</h2>
-    <a href="admin.html">⬅ Back to Dashboard</a>
-  </div>
+  <div class="container">
+    <h2>Add Delivery Route</h2>
 
-  <div class="main">
-    <div class="card">
-      <h2>Multi-Stop Route Planner</h2>
+    <input type="text" id="origin" placeholder="Enter origin" />
+    <input type="text" id="destination" placeholder="Enter destination" />
 
-      <label>Origin:</label>
-      <input type="text" id="origin" placeholder="Enter starting location" />
+    <div id="waypoints"></div>
+    <span class="add-stop" onclick="addStop()">+ Add Stop</span>
 
-      <div id="stops"></div>
+    <button onclick="calculateDistance()">Compute Fee</button>
 
-      <button onclick="addStop()">➕ Add Stop</button>
-
-      <label>Destination:</label>
-      <input type="text" id="destination" placeholder="Enter final destination" />
-
-      <button class="compute" onclick="computeRoute()">Compute Total Fee</button>
-
-      <div id="result"></div>
-    </div>
+    <div class="distance-result" id="result"></div>
   </div>
 
   <script>
-    let autocompleteFields = [];
+    const GOOGLE_MAPS_API_KEY = "AIzaSyABBbwu3ehg4IXQYqOtz-txvNG4KYkj3ss"; // your key
 
+    // Initialize Autocomplete for fields
     function initAutocomplete() {
-      const originInput = document.getElementById("origin");
-      const destinationInput = document.getElementById("destination");
-      new google.maps.places.Autocomplete(originInput);
-      new google.maps.places.Autocomplete(destinationInput);
+      const options = { componentRestrictions: { country: "ph" } }; // Restrict to PH (optional)
+      new google.maps.places.Autocomplete(document.getElementById("origin"), options);
+      new google.maps.places.Autocomplete(document.getElementById("destination"), options);
     }
 
+    // Add new stop input
     function addStop() {
-      const div = document.createElement("div");
-      div.className = "stop";
-      div.innerHTML = `
-        <input type="text" placeholder="Enter stop location" class="waypoint" />
-        <button onclick="this.parentElement.remove()">✖</button>
-      `;
-      document.getElementById("stops").appendChild(div);
+      const div = document.createElement('div');
+      div.innerHTML = `<input type="text" class="stop" placeholder="Stop" />`;
+      document.getElementById('waypoints').appendChild(div);
 
-      const newInput = div.querySelector(".waypoint");
-      const autocomplete = new google.maps.places.Autocomplete(newInput);
-      autocompleteFields.push(autocomplete);
+      // Enable autocomplete on new stop field
+      const inputs = div.querySelectorAll(".stop");
+      inputs.forEach(input => new google.maps.places.Autocomplete(input, { componentRestrictions: { country: "ph" } }));
     }
 
-    function computeRoute() {
-      const origin = document.getElementById("origin").value.trim();
-      const destination = document.getElementById("destination").value.trim();
-      const waypoints = Array.from(document.querySelectorAll(".waypoint"))
-        .map(i => ({ location: i.value.trim(), stopover: true }))
-        .filter(wp => wp.location);
+    // Calculate total distance and delivery fee
+    function calculateDistance() {
+      const origin = document.getElementById('origin').value;
+      const destination = document.getElementById('destination').value;
+      const stops = Array.from(document.querySelectorAll('.stop')).map(i => i.value);
 
-      const result = document.getElementById("result");
       if (!origin || !destination) {
-        result.style.display = "block";
-        result.innerHTML = "⚠️ Please input origin and destination.";
+        alert("Please enter both origin and destination");
         return;
       }
 
-      const directionsService = new google.maps.DirectionsService();
-      directionsService.route(
-        {
-          origin,
-          destination,
-          waypoints,
-          travelMode: google.maps.TravelMode.DRIVING,
-        },
-        (res, status) => {
-          if (status !== "OK") {
-            result.style.display = "block";
-            result.innerHTML = "❌ Error calculating route.";
-            return;
-          }
+      const service = new google.maps.DistanceMatrixService();
+      const points = [origin, ...stops, destination];
+      const requests = [];
 
-          const legs = res.routes[0].legs;
-          let total = 0;
-          for (const leg of legs) total += leg.distance.value;
-          const km = total / 1000;
-          const fee = 25 + km * 10;
+      for (let i = 0; i < points.length - 1; i++) {
+        requests.push(
+          new Promise((resolve, reject) => {
+            service.getDistanceMatrix({
+              origins: [points[i]],
+              destinations: [points[i+1]],
+              travelMode: google.maps.TravelMode.DRIVING,
+            }, (res, status) => {
+              if (status === 'OK') {
+                const km = res.rows[0].elements[0].distance.value / 1000;
+                resolve(km);
+              } else reject(status);
+            });
+          })
+        );
+      }
 
-          result.style.display = "block";
-          result.innerHTML = `
-            <p><strong>Total Distance:</strong> ${km.toFixed(2)} km</p>
-            <p><strong>Estimated Delivery Fee:</strong> ₱${fee.toFixed(2)}</p>
-          `;
-        }
-      );
+      Promise.all(requests).then(distances => {
+        const totalKm = distances.reduce((a,b) => a+b, 0);
+        const fee = totalKm * 10; // ₱10/km rate
+        document.getElementById('result').innerHTML =
+          `🚚 Total Distance: ${totalKm.toFixed(2)} km<br>💰 Fee: ₱${fee.toFixed(2)}`;
+      }).catch(err => alert("Error: " + err));
     }
-  </script>
 
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABBbwu3ehg4IXQYqOtz-txvNG4KYkj3ss&libraries=places&callback=initAutocomplete"></script>
+    // Load Google Maps JS + initialize autocomplete
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&callback=initAutocomplete`;
+    script.async = true;
+    document.head.appendChild(script);
+  </script>
 </body>
 </html>
