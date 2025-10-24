@@ -76,6 +76,20 @@
       background: #e65500;
     }
 
+    /* Rider button on the right side */
+    #adminBtn {
+      order: 1;
+    }
+
+    #riderBtn {
+      order: 2;
+      background: #333;
+    }
+
+    #riderBtn:hover {
+      background: #000;
+    }
+
     .login-btn {
       width: 100%;
       padding: 0.8rem;
@@ -118,8 +132,8 @@
     </div>
 
     <div class="role-select">
-      <button id="riderBtn">Rider</button>
       <button id="adminBtn">Admin</button>
+      <button id="riderBtn">Rider</button>
     </div>
 
     <button class="login-btn" onclick="login()">Log In</button>
@@ -152,8 +166,12 @@
         return;
       }
 
-      // Here you’ll integrate Firebase or your backend later
-      alert(`Logging in as ${userRole}...`);
+      // Redirect based on role
+      if (userRole === "Admin") {
+        window.location.href = "admin.html";
+      } else {
+        window.location.href = "rider.html";
+      }
     }
   </script>
 </body>
