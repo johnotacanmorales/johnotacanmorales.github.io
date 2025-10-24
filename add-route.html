@@ -2,221 +2,433 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Add Delivery Route</title>
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f3f4f6;
-      padding: 20px;
+    :root{
+      --bg:#f3f4f6; --card:#fff; --ink:#111827; --muted:#6b7280;
+      --brand:#4F46E5; --brand-700:#3730a3; --accent:#F97316;
+      --ring:rgba(79,70,229,.35); --rail:#e5e7eb; --ok:#16a34a; --danger:#ef4444;
+      --shadow:0 2px 8px rgba(0,0,0,.1); --radius:12px;
     }
+    *{box-sizing:border-box}
+    body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--ink);padding:20px}
+    .container{max-width:780px;margin:0 auto;background:var(--card);padding:22px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    h2{margin:0 0 16px}
 
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    label{font-weight:500;display:block;margin-top:10px;margin-bottom:8px}
+    input[type="text"]{
+      width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:16px;outline:none;background:#fff;
+      transition:.15s border-color,.15s box-shadow;
     }
+    input[type="text"]:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--ring)}
+    .small{font-size:12px;color:var(--muted);margin-top:6px}
 
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
+    /* Stack / rail UI */
+    .stack{border:1px solid #e5e7eb;border-radius:14px;padding:12px 12px 8px 12px}
+    .stack-rail{position:relative;padding-left:32px}
+    .stack-rail::before{
+      content:""; position:absolute; left:14px; top:20px; bottom:18px; width:2px; background:var(--rail); border-radius:2px;
     }
-
-    button {
-      background: #4F46E5;
-      color: white;
-      cursor: pointer;
-      font-weight: 500;
-      transition: 0.3s;
+    .stop-row{
+      position:relative; display:flex; gap:10px; align-items:flex-start;
+      padding:10px 6px; border-radius:10px;
     }
-
-    button:hover:not(:disabled) { background: #3730a3; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    .distance-result {
-      margin-top: 20px;
-      text-align: center;
-      font-weight: 600;
+    .stop-row + .stop-row{ border-top:1px solid #f1f2f4; }
+    .idx{
+      user-select:none; cursor:grab; flex:0 0 auto; width:28px; height:28px; border-radius:999px;
+      background:#f1f5f9; color:#111827; font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:center;
+      border:1px solid #e5e7eb; margin-top:2px;
     }
-
-    .add-stop {
-      color: #2563eb;
-      cursor: pointer;
-      display: block;
-      text-align: center;
-      margin-top: 10px;
-      font-weight: 500;
+    .idx:active{cursor:grabbing}
+    .stop-main{flex:1 1 auto}
+    .addr{width:100%}
+    .meta{display:flex; align-items:center; gap:10px; margin-top:6px;}
+    .dot{width:8px;height:8px;border-radius:999px;background:#9ca3af;flex:0 0 auto;margin-top:2px}
+    .dot.ok{background:var(--ok)}
+    .note-input{flex:1 1 auto; font-size:14px; padding:8px 10px; border:1px dashed #d7dae0; border-radius:8px}
+    .note-input:focus{border-style:solid}
+    .remove-stop{
+      flex:0 0 auto; cursor:pointer; border:none; background:transparent; color:#6b7280; font-size:16px;
+      width:28px; height:28px; border-radius:8px;
     }
+    .remove-stop:hover{ color:var(--danger); background:#fff1f1; }
 
-    .loading {
-      text-align: center;
-      margin-top: 15px;
-      color: #555;
-    }
+    .row-actions{display:flex; align-items:center; justify-content:space-between; padding:8px 2px 4px;}
+    .row-actions .toggles{display:flex; align-items:center; gap:16px}
 
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: 500;
-    }
+    .add-stop{color:var(--accent); cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-weight:600;}
 
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 15px;
-      cursor: pointer;
-    }
+    /* Toggle switches */
+    .toggle{display:inline-flex; align-items:center; gap:10px; user-select:none; cursor:pointer; font-weight:600; color:#374151;}
+    .switch{position:relative; width:54px; height:28px; background:#f1f5f9; border-radius:999px; transition:.2s; border:1px solid #e5e7eb;}
+    .switch::after{content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; background:#fff; border-radius:999px;
+      box-shadow:0 1px 3px rgba(0,0,0,.2); transition:.2s;}
+    .switch.on{background:var(--accent); border-color:var(--accent)}
+    .switch.on::after{left:29px}
 
-    input[type="checkbox"] {
-      accent-color: #4F46E5;
-      transform: scale(1.2);
-    }
+    .hr{height:1px;background:#e5e7eb;margin:16px 0}
 
-    #map {
-      height: 400px;
-      width: 100%;
-      margin-top: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+    button.btn{width:100%; padding:12px; border:0; border-radius:10px; background:var(--brand); color:#fff; font-weight:600; font-size:16px; cursor:pointer; transition:.2s;}
+    button.btn:hover{background:var(--brand-700)}
+    button.btn:disabled{opacity:.6; cursor:not-allowed}
+
+    #map{height:420px;width:100%;margin-top:16px;border-radius:10px;box-shadow:var(--shadow)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+    .chip{background:#eef2ff;color:#3730a3;border-radius:999px;padding:6px 10px;font-size:12px}
+    .distance-result{margin-top:14px;text-align:center;font-weight:600}
+    .loading{text-align:center;margin-top:10px;color:#555}
+    .muted{color:#6b7280}
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Add Delivery Route</h2>
 
-    <label for="origin">Origin</label>
-    <input type="text" id="origin" placeholder="Enter origin" />
+    <label for="origin" style="margin-top:12px">Origin (fixed)</label>
+    <input type="text" id="origin" placeholder="Enter origin" data-place-id="">
 
-    <label for="destination">Destination</label>
-    <input type="text" id="destination" placeholder="Enter destination" />
+    <div class="hr"></div>
 
-    <div id="waypoints"></div>
-    <span class="add-stop" onclick="addStop()">+ Add Stop</span>
+    <div class="stack stack-rail" aria-label="Destinations block">
+      <div class="stop-row" style="padding-bottom:4px;">
+        <div class="muted" style="font-weight:600">Destinations</div>
+      </div>
 
-    <!-- Route Optimization Checkbox -->
-    <label class="checkbox-label">
-      <input type="checkbox" id="optimize" />
-      <span>Optimize route for shortest distance</span>
-    </label>
+      <div id="stops"></div>
 
-    <button id="computeBtn" onclick="calculateDistance()">Compute Fee</button>
+      <div class="row-actions">
+        <span class="add-stop" id="addStopBtn">＋ Add Stop</span>
+        <div class="toggles">
+          <label class="toggle" id="toggleOptimize">
+            <div id="optSwitch" class="switch on" aria-hidden="true"></div>
+            <input type="checkbox" id="optimize" checked hidden>
+            <span>Optimize Route</span>
+          </label>
+
+          <label class="toggle" id="toggleCOD" title="Rider carries COD (+₱70)">
+            <div id="codSwitch" class="switch" aria-hidden="true"></div>
+            <input type="checkbox" id="cod" hidden>
+            <span>COD</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="small" style="margin-top:8px">
+      Fill in address and notes (e.g., “John | 09xx xxx xxxx | landmark”). Drag the numbered circle to reorder; ✕ to remove.
+    </div>
+
+    <button id="computeBtn" class="btn" style="margin-top:14px">Compute Fee</button>
 
     <div id="loading" class="loading"></div>
     <div class="distance-result" id="result"></div>
+    <div class="chips" id="optimizedChips"></div>
     <div id="map"></div>
   </div>
 
   <script>
-    // ⚠️ Replace this with your domain-restricted Google Maps API key
+    // === Replace with your testing key ===
     const GOOGLE_MAPS_API_KEY = "AIzaSyArXIA6s9EokKGX50dUX2Zjh7UyykTEDDw";
+
+    // ==== Motorcycle (NCR & South Luzon) pricing — with 10% off applied internally ====
+    const MOTO_BASE = 49;              // base fare
+    const MOTO_KM_TIER1_TO = 5;        // first 5 km
+    const MOTO_KM_TIER1_RATE = 6;      // ₱/km for first 5 km
+    const MOTO_KM_TIER2_RATE = 5;      // ₱/km after 5 km
+    const MOTO_EXTRA_STOP_FEE = 40;    // per additional destination
+    const DISCOUNT = 0.10;             // apply 10% off internally (UI shows only net)
+    const COD_FEE = 70;                // flat add if rider carries COD
+
+    const WAYPOINT_LIMIT = 20; // soft guard
 
     let map, directionsService, directionsRenderer;
 
-    // Initialize Autocomplete + Map
-    function initAutocomplete() {
-      const options = { componentRestrictions: { country: "ph" } };
+    // Autocomplete helper
+    function attachAutocomplete(inputEl, dotEl) {
+      const ac = new google.maps.places.Autocomplete(inputEl, {
+        componentRestrictions: { country: "ph" },
+        fields: ["place_id","formatted_address","geometry","name"]
+      });
+      ac.addListener("place_changed", () => {
+        const p = ac.getPlace();
+        inputEl.dataset.placeId = p?.place_id || "";
+        if (dotEl) dotEl.classList.toggle('ok', !!inputEl.dataset.placeId);
+      });
+    }
 
-      new google.maps.places.Autocomplete(document.getElementById("origin"), options);
-      new google.maps.places.Autocomplete(document.getElementById("destination"), options);
+    // Create one destination row (address + notes)
+    function createStopRow(index=1) {
+      const row = document.createElement('div');
+      row.className = 'stop-row';
+      row.setAttribute('draggable', 'true');
 
-      // Initialize map (default center: Metro Manila)
-      map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 7,
-        center: { lat: 14.5995, lng: 120.9842 },
+      row.innerHTML = `
+        <div class="idx" title="Drag to reorder" aria-label="Drag handle">${index}</div>
+        <div class="stop-main">
+          <input type="text" class="addr stop" placeholder="Enter destination" data-place-id="">
+          <div class="meta">
+            <span class="dot" title="Selected from Autocomplete"></span>
+            <input type="text" class="note-input" placeholder="Notes: Name | Phone | Landmark" />
+          </div>
+        </div>
+        <button class="remove-stop" title="Remove destination" aria-label="Remove">✕</button>
+      `;
+
+      const inputEl = row.querySelector('.addr');
+      const dot = row.querySelector('.dot');
+      attachAutocomplete(inputEl, dot);
+
+      row.addEventListener('dragstart', (e) => {
+        row.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move';
+      });
+      row.addEventListener('dragend', () => {
+        row.classList.remove('dragging'); renumberStops();
       });
 
-      directionsService = new google.maps.DirectionsService();
-      directionsRenderer = new google.maps.DirectionsRenderer({ map });
+      return row;
     }
 
-    // Add stop field dynamically
-    function addStop() {
-      const div = document.createElement('div');
-      div.innerHTML = `<input type="text" class="stop" placeholder="Stop" />`;
-      document.getElementById('waypoints').appendChild(div);
-      const input = div.querySelector(".stop");
-      new google.maps.places.Autocomplete(input, { componentRestrictions: { country: "ph" } });
+    function addStopRow() {
+      const container = document.getElementById('stops');
+      const nextIdx = container.querySelectorAll('.stop-row').length + 1;
+      container.appendChild(createStopRow(nextIdx));
+      renumberStops();
     }
 
-    // Calculate route and display on map
-    function calculateDistance() {
-      const origin = document.getElementById('origin').value.trim();
-      const destination = document.getElementById('destination').value.trim();
-      const stops = Array.from(document.querySelectorAll('.stop'))
-                         .map(i => i.value.trim())
-                         .filter(v => v !== '');
+    function renumberStops() {
+      document.querySelectorAll('#stops .stop-row .idx').forEach((el, i) => el.textContent = i + 1);
+    }
 
-      if (!origin || !destination) {
-        alert("Please enter both origin and destination.");
-        return;
-      }
+    // DnD container behavior + remove
+    function initDragContainer() {
+      const container = document.getElementById('stops');
+      container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const dragging = container.querySelector('.dragging');
+        if (!dragging) return;
+
+        const siblings = [...container.querySelectorAll('.stop-row:not(.dragging)')];
+        let afterElement = null;
+        let smallestOffset = Number.POSITIVE_INFINITY;
+
+        siblings.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          const offset = e.clientY - (rect.top + rect.height / 2);
+          if (offset < 0 && Math.abs(offset) < smallestOffset) {
+            smallestOffset = Math.abs(offset);
+            afterElement = el;
+          }
+        });
+
+        if (afterElement == null) container.appendChild(dragging);
+        else container.insertBefore(dragging, afterElement);
+      });
+
+      container.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('remove-stop')) return;
+        const row = e.target.closest('.stop-row');
+        row?.remove();
+        if (container.querySelectorAll('.stop-row').length === 0) addStopRow();
+        renumberStops();
+      });
+    }
+
+    // Directions helper
+    function asWaypoint(inputEl) {
+      const pid = inputEl.dataset.placeId || "";
+      const val = inputEl.value.trim();
+      return pid ? { location: { placeId: pid }, stopover: true } : { location: val, stopover: true };
+    }
+
+    // Motorcycle net fare (UI shows only net)
+    function motorcycleNet(totalKm, destinationCount) {
+      const tier1Km = Math.min(totalKm, MOTO_KM_TIER1_TO);
+      const tier2Km = Math.max(0, totalKm - MOTO_KM_TIER1_TO);
+
+      let fare = MOTO_BASE
+               + (tier1Km * MOTO_KM_TIER1_RATE)
+               + (tier2Km * MOTO_KM_TIER2_RATE)
+               + (Math.max(0, destinationCount - 1) * MOTO_EXTRA_STOP_FEE);
+
+      return fare * (1 - DISCOUNT);
+    }
+
+    // Promise wrapper for DirectionsService.route
+    function routePromise(req) {
+      return new Promise((resolve, reject) => {
+        directionsService.route(req, (response, status) => {
+          if (status === google.maps.DirectionsStatus.OK && response?.routes?.[0]) resolve(response);
+          else reject({ status, response });
+        });
+      });
+    }
+
+    // Main calc
+    async function calculateDistance() {
+      const originEl = document.getElementById('origin');
+      const originVal = originEl.value.trim();
+      const rows = Array.from(document.querySelectorAll('#stops .stop-row'));
+      const stopInputs = rows.map(r => r.querySelector('.addr')).filter(el => el.value.trim() !== '');
+      const optimize = document.getElementById('optimize').checked;
+      const codOn = document.getElementById('cod').checked;
+
+      if (!originVal) { alert("Please enter origin."); return; }
+      if (stopInputs.length < 1) { alert("Add at least one destination."); return; }
+      if (stopInputs.length > WAYPOINT_LIMIT) { alert(`Too many destinations (${stopInputs.length}). Reduce to ≤ ${WAYPOINT_LIMIT}.`); return; }
 
       const computeBtn = document.getElementById("computeBtn");
       const resultDiv = document.getElementById("result");
       const loadingDiv = document.getElementById("loading");
+      const chipsDiv = document.getElementById("optimizedChips");
 
       computeBtn.disabled = true;
-      resultDiv.innerHTML = "";
-      loadingDiv.innerHTML = "🚗 Calculating route...";
+      resultDiv.textContent = "";
+      chipsDiv.innerHTML = "";
+      loadingDiv.textContent = optimize
+        ? "🚗 Optimizing route across all destinations..."
+        : "🚗 Calculating route in the order listed...";
 
-      const optimize = document.getElementById('optimize').checked;
+      const origin = originEl.dataset.placeId ? { placeId: originEl.dataset.placeId } : originVal;
 
-      directionsService.route({
-        origin,
-        destination,
-        waypoints: stops.map(stop => ({ location: stop, stopover: true })),
-        travelMode: google.maps.TravelMode.DRIVING,
-        optimizeWaypoints: optimize
-      }, (response, status) => {
-        computeBtn.disabled = false;
-        loadingDiv.innerHTML = "";
+      try {
+        let bestKm, bestResp, visualOrder, visualNotes;
 
-        if (status !== "OK" || !response.routes[0]) {
-          alert("Unable to calculate route. Please check the addresses and try again.");
-          return;
+        if (!optimize) {
+          const destinationEl = stopInputs[stopInputs.length - 1];
+          const waypoints = stopInputs.slice(0, -1).map(asWaypoint);
+
+          const req = {
+            origin,
+            destination: destinationEl.dataset.placeId ? { placeId: destinationEl.dataset.placeId } : destinationEl.value.trim(),
+            waypoints,
+            travelMode: google.maps.TravelMode.DRIVING,
+            optimizeWaypoints: false
+          };
+
+          const resp = await routePromise(req);
+          const meters = resp.routes[0].legs.reduce((s, l) => s + (l.distance?.value || 0), 0);
+          bestKm = meters / 1000; bestResp = resp;
+
+          visualOrder = stopInputs.map(el => el.value.trim());
+          visualNotes = rows.map(r => r.querySelector('.note-input').value.trim());
+
+        } else {
+          let best = { km: Infinity, response: null, finalIndex: -1, waypointOrder: [] };
+
+          const buildReq = (finalIdx) => {
+            const finalEl = stopInputs[finalIdx];
+            const waypointEls = stopInputs.filter((_, i) => i !== finalIdx);
+            return {
+              origin,
+              destination: finalEl.dataset.placeId ? { placeId: finalEl.dataset.placeId } : finalEl.value.trim(),
+              waypoints: waypointEls.map(asWaypoint),
+              travelMode: google.maps.TravelMode.DRIVING,
+              optimizeWaypoints: true
+            };
+          };
+
+          for (let i = 0; i < stopInputs.length; i++) {
+            const resp = await routePromise(buildReq(i));
+            const meters = resp.routes[0].legs.reduce((s, l) => s + (l.distance?.value || 0), 0);
+            const km = meters / 1000;
+            if (km < best.km) {
+              best = { km, response: resp, finalIndex: i, waypointOrder: resp.routes[0].waypoint_order || [] };
+            }
+          }
+
+          bestKm = best.km; bestResp = best.response;
+
+          const allNotes = rows.map(r => r.querySelector('.note-input').value.trim());
+          const waypointEls = stopInputs.filter((_, i) => i !== best.finalIndex);
+          const waypointNotes = allNotes.filter((_, i) => i !== best.finalIndex);
+
+          const optimizedList = best.waypointOrder.map(i => waypointEls[i].value.trim());
+          const optimizedNotes = best.waypointOrder.map(i => waypointNotes[i] || "");
+
+          optimizedList.push(stopInputs[best.finalIndex].value.trim());
+          optimizedNotes.push(allNotes[best.finalIndex] || "");
+
+          visualOrder = optimizedList;
+          visualNotes  = optimizedNotes;
         }
 
-        // Display route on map
-        directionsRenderer.setDirections(response);
+        loadingDiv.textContent = "";
+        directionsRenderer.setDirections(bestResp);
 
-        const route = response.routes[0];
-        let totalMeters = 0;
-        route.legs.forEach(leg => totalMeters += leg.distance.value);
+        // Net = discounted motorcycle fare + (optional) COD flat add
+        let net = motorcycleNet(bestKm, stopInputs.length);
+        if (codOn) net += COD_FEE;
 
-        const totalKm = totalMeters / 1000;
-        const fee = totalKm * 10; // ₱10 per km
+        resultDiv.innerHTML =
+          `🛵 Distance: <strong>${bestKm.toFixed(2)} km</strong><br>` +
+          `✅ Net Fee: <strong>₱${net.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</strong>`;
 
-        resultDiv.innerHTML = `
-          🚚 Total Distance: <strong>${totalKm.toFixed(2)} km</strong><br>
-          💰 Fee: <strong>₱${fee.toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
-        `;
+        chipsDiv.innerHTML = visualOrder
+          .map((addr, idx) => {
+            const note = visualNotes[idx] || "";
+            const safeTitle = note.replace(/"/g, '&quot;');
+            return `<span class="chip" title="${safeTitle}">${idx+1}. ${addr}</span>`;
+          })
+          .join("");
 
-        // Show optimized stop order if optimization is enabled
-        if (optimize && stops.length > 1) {
-          const order = response.routes[0].waypoint_order;
-          const optimizedStops = order.map(i => stops[i]);
-          resultDiv.innerHTML += `
-            <br><br>🗺 <strong>Optimized Stop Order:</strong><br>
-            ${optimizedStops.join(' → ')}
-          `;
-        }
-      });
+      } catch (e) {
+        loadingDiv.textContent = "";
+        const DS = google.maps.DirectionsStatus;
+        const friendly = {
+          [DS.ZERO_RESULTS]: "No route found. Check your locations.",
+          [DS.OVER_QUERY_LIMIT]: "Rate limit reached. Try again shortly.",
+          [DS.MAX_WAYPOINTS_EXCEEDED]: "Too many destinations. Remove some and retry.",
+          [DS.NOT_FOUND]: "One or more places could not be geocoded. Please pick from Autocomplete suggestions.",
+          [DS.INVALID_REQUEST]: "Invalid request. Review the inputs and try again."
+        };
+        alert(friendly[e.status] || "Unable to calculate route. Please verify inputs and try again.");
+      } finally {
+        setTimeout(()=>{ computeBtn.disabled = false; }, 900);
+      }
     }
 
-    // Load Google Maps script dynamically
+    // Toggle UI wiring
+    function initToggle(idCheckbox, idSwitch, idLabel) {
+      const cb = document.getElementById(idCheckbox);
+      const sw = document.getElementById(idSwitch);
+      const label = document.getElementById(idLabel);
+      const sync = () => cb.checked ? sw.classList.add('on') : sw.classList.remove('on');
+      sync();
+      label.addEventListener('click', () => { cb.checked = !cb.checked; sync(); });
+    }
+
+    // Init
+    function initApp() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 10, center: { lat: 14.5995, lng: 120.9842 }
+      });
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer({ map });
+
+      attachAutocomplete(document.getElementById("origin"), null);
+
+      // seed one destination
+      addStopRow();
+      initDragContainer();
+
+      // wire toggles
+      initToggle('optimize', 'optSwitch', 'toggleOptimize');
+      initToggle('cod', 'codSwitch', 'toggleCOD');
+
+      document.getElementById("addStopBtn").addEventListener("click", addStopRow);
+      document.getElementById("computeBtn").addEventListener("click", calculateDistance);
+    }
+
+    // Load Maps JS
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&callback=initAutocomplete`;
-    script.async = true;
-    document.head.appendChild(script);
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&callback=initApp`;
+    script.async = true; script.defer = true; document.head.appendChild(script);
   </script>
 </body>
 </html>
