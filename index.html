@@ -1,12 +1,160 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Page Title</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delivery Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ff8c00, #ff5500);
+    }
+
+    .login-container {
+      background: #fff;
+      width: 90%;
+      max-width: 400px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+
+    .login-container h1 {
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    .input-group {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .role-select {
+      display: flex;
+      justify-content: space-between;
+      margin: 1.2rem 0;
+    }
+
+    .role-select button {
+      width: 48%;
+      padding: 0.7rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      color: white;
+      background: #ff6600;
+      transition: 0.3s ease;
+    }
+
+    .role-select button:hover {
+      background: #e65500;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 0.8rem;
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .login-btn:hover {
+      background: #000;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 1.5rem;
+      }
+      .login-container h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="login-container">
+    <h1>Delivery Portal Login</h1>
 
-<h1>This is a Heading</h1>
-<p>This is a paragraph.</p>
+    <div class="input-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="Enter your email" />
+    </div>
 
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter your password" />
+    </div>
+
+    <div class="role-select">
+      <button id="riderBtn">Rider</button>
+      <button id="adminBtn">Admin</button>
+    </div>
+
+    <button class="login-btn" onclick="login()">Log In</button>
+  </div>
+
+  <script>
+    let userRole = "";
+
+    document.getElementById("riderBtn").addEventListener("click", () => {
+      userRole = "Rider";
+      alert("You selected Rider login");
+    });
+
+    document.getElementById("adminBtn").addEventListener("click", () => {
+      userRole = "Admin";
+      alert("You selected Admin login");
+    });
+
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      if (!userRole) {
+        alert("Please select Rider or Admin");
+        return;
+      }
+
+      if (!email || !password) {
+        alert("Please fill in both fields");
+        return;
+      }
+
+      // Here you’ll integrate Firebase or your backend later
+      alert(`Logging in as ${userRole}...`);
+    }
+  </script>
 </body>
 </html>
